@@ -1,5 +1,9 @@
 # External Environment Plugin for [PHPCI](https://www.phptesting.org)
 
+[![Build Status](https://travis-ci.org/rephluX/phpci-external-env.svg?branch=master)](https://travis-ci.org/rephluX/phpci-external-env)
+[![Latest Stable Version](https://poser.pugx.org/rephlux/phpci-external-env/v/stable.svg)](https://packagist.org/packages/rephlux/phpci-external-env)
+[![License](https://poser.pugx.org/rephlux/phpci-external-env/license.svg)](https://packagist.org/packages/rephlux/phpci-external-env)
+
 A plugin for PHPCI to copy an external environment file (e.g. `.env` environment file used in a Laravel Application) to the appropriate build directory.
  
 ### Initial Situation 
