@@ -1,0 +1,38 @@
+{
+    "name": "rephlux/phpci-external-env",
+    "description": "A PHPCI plugin to copy an environment configuration file to the build path",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Chris van Daele",
+            "email": "engine_no9@gmx.net",
+            "role": "Developer"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "~4.0",
+        "mikey179/vfsStream": "~1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Rephlux\\PHPCI\\Plugin\\": "src"
+        }
+    },
+    "config": {
+        "preferred-install": "dist"
+    },
+    "extra": {
+        "phpci": {
+            "pluginNamespace": "Rephlux\\PHPCI\\Plugin\\",
+            "suppliedPlugins": [
+                {
+                    "name": "ExternalEnvironment",
+                    "class": "ExternalEnvironment"
+                }
+            ]
+        }
+    }
+}
