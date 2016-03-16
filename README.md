@@ -12,6 +12,11 @@ When committing a application to a VCS, it is a common nature, not to include an
 
 This plugins copies an environment file, located on the server PHPCI is running on, to the appropriate build directory. With that approach, there is no need to include any _sensitive_ data in the application releated files.
 
+Each branch in the VCS can be configured separately to support different settings for each branch:
+
+* master branch -> production settings
+* development branch -> stage settings
+
 ### Install the Plugin
 
 1. Navigate to your PHPCI root directory and run `composer require rephlux/phpci-external-env`
@@ -23,21 +28,27 @@ This plugins copies an environment file, located on the server PHPCI is running 
 2. Ensure that the environment file is readable. 
 
 ### Plugin Options
-- **env** _[string]_ - The path to the env file
-- **path** _[string, optional]_ - The path to the destination filename relative to the appropriate build directory _(default: '.env')_
+
+- **branch** _[array]_ The specific branch for the project
+    - **env** _[string]_ - The path to the env file
+    - **path** _[string, optional]_ - The path to the destination filename relative to the appropriate build directory _(default: '.env')_
 
 ### PHPCI Config
 
 ```yml
 \Rephlux\PHPCI\Plugin\ExternalEnvironment:
-    env: <path_to_env_file>
-    path: <path_to_destination_filename>
+    <branch>:
+        env: <path_to_env_file>
+        path: <path_to_destination_filename>
 ```
 
 example:
 
 ```yml
 setup:
-    \Rephlux\PHPCI\Plugin\ExternalEnvironment: 
-        env: "/usr/www/phpci/.env/laravel-application.env"
+    \Rephlux\PHPCI\Plugin\ExternalEnvironment:
+        master:
+            env: "/usr/www/phpci/.env/laravel-application-production.env"
+        development:
+            env: "/usr/www/phpci/.env/laravel-application-stage.env"    
 ```

@@ -45,6 +45,11 @@ class ExternalEnvironment implements Plugin, ZeroConfigPlugin
     protected $envFilename = '';
 
     /**
+     * @var string $branch The name for the selected branch
+     */
+    protected $branch;
+
+    /**
      * Check if this plugin can be executed.
      *
      * @param $stage
@@ -64,8 +69,9 @@ class ExternalEnvironment implements Plugin, ZeroConfigPlugin
 
     /**
      * Standard Constructor
-     * $options['env'] Filepath to source environment file.
-     * $options['path'] Filepath to destination environment file.
+     *
+     * $options[<branch>]['env'] Filepath to source environment file.
+     * $options[<branch>]['path'] Filepath to destination environment file.
      *
      * @param Builder $phpci
      * @param Build $build
@@ -74,15 +80,16 @@ class ExternalEnvironment implements Plugin, ZeroConfigPlugin
      */
     public function __construct(Builder $phpci, Build $build, array $options = [])
     {
-        $this->phpci = $phpci;
-        $this->build = $build;
+        $this->phpci  = $phpci;
+        $this->build  = $build;
+        $this->branch = $this->build->getBranch();
 
         $this->envFilepath = $this->loadEnvPath($options);
         $this->envFilename = $this->loadFilename($options);
     }
 
     /**
-     * Get the filepat to the source environment file.
+     * Get the filepath to the source environment file.
      *
      * @param array $options
      * @return string
@@ -90,15 +97,19 @@ class ExternalEnvironment implements Plugin, ZeroConfigPlugin
      */
     protected function loadEnvPath(array $options)
     {
-        if (!is_array($options) || !isset($options['env'])) {
-            throw new \Exception('Please define a filepath to a environment file for a environment application!');
+        if (!is_array($options) || !isset($options[$this->branch])) {
+            throw new \Exception('No configuration found for the ' . $this->branch . ' branch!');
         }
 
-        if (!file_exists($options['env']) || !is_readable($options['env'])) {
-            throw new \Exception('Please define a valid filepath or check permissions to specified environment file!');
+        if (!is_array($options[$this->branch]) || !isset($options[$this->branch]['env'])) {
+            throw new \Exception('Please define a filepath to a environment file for the ' . $this->branch . ' branch.');
         }
 
-        return trim($options['env']);
+        if (!file_exists($options[$this->branch]['env']) || !is_readable($options[$this->branch]['env'])) {
+            throw new \Exception('Unable to load the environment file for the ' . $this->branch . '!');
+        }
+
+        return trim($options[$this->branch]['env']);
     }
 
     /**
@@ -112,11 +123,11 @@ class ExternalEnvironment implements Plugin, ZeroConfigPlugin
     {
         $filename = '.env';
 
-        if (!isset($options['path'])) {
+        if (!isset($options[$this->branch]['path'])) {
             return $filename;
         }
 
-        $filename = $options['path'];
+        $filename = $options[$this->branch]['path'];
 
         if (!preg_match('/^[a-z0-9-_\.\/]+$/', $filename)) {
             throw new \Exception('Please define a valid filename for the destination environment filename!');
@@ -135,7 +146,11 @@ class ExternalEnvironment implements Plugin, ZeroConfigPlugin
         $destinationFilename = $this->phpci->buildPath . '/' . $this->envFilename;
 
         $this->phpci->log(
-            sprintf('Copy external environment file %s to build directory', $this->envFilepath)
+            sprintf(
+                'Copy external environment file %s for the %s branch to build directory',
+                $this->envFilepath,
+                $this->branch
+            )
         );
 
         if (!copy($this->envFilepath, $destinationFilename)) {

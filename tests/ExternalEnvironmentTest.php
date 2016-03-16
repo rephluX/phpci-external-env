@@ -45,6 +45,10 @@ class ExternalEnvironmentTest extends PHPUnit_Framework_TestCase
         $this->builderMock
             ->method('logFailure')
             ->willReturn(null);
+
+        $this->buildMock
+            ->method('getBranch')
+            ->willReturn('master');
     }
 
     /**
@@ -76,10 +80,28 @@ class ExternalEnvironmentTest extends PHPUnit_Framework_TestCase
      */
     public function testPluginCanBeInstantiated()
     {
-        $options = ['env' => dirname(__DIR__) . '/tests/stubs/sample.env'];
+        $options = [
+            'master' => [
+                'env' => dirname(__DIR__) . '/tests/stubs/sample.env'
+            ]
+        ];
+
         $plugin  = $this->getPlugin($options);
 
         $this->assertInstanceOf('Rephlux\PHPCI\Plugin\ExternalEnvironment', $plugin);
+    }
+
+    /**
+     * Ensure that the plugin can not be instantiated with a missing env path.
+     *
+     * @expectedException Exception
+     * @expectedExceptionMessage No configuration found
+     */
+    public function testPluginCanNotBeInstantiatedWithInvalidBranch()
+    {
+        $options = ['development' => []];
+
+        $this->getPlugin($options);
     }
 
     /**
@@ -90,7 +112,7 @@ class ExternalEnvironmentTest extends PHPUnit_Framework_TestCase
      */
     public function testPluginCanNotBeInstantiatedWithMissingEnvPath()
     {
-        $options = [];
+        $options = ['master' => []];
 
         $this->getPlugin($options);
     }
@@ -99,11 +121,15 @@ class ExternalEnvironmentTest extends PHPUnit_Framework_TestCase
      * Ensure that the plugin can not be instantiated with a invalid env path.
      *
      * @expectedException Exception
-     * @expectedExceptionMessage Please define a valid filepath
+     * @expectedExceptionMessage Unable to load the environment
      */
     public function testPluginCanNotBeInstantiatedWithInvalidEnvPath()
     {
-        $options = ['env' => dirname(__DIR__) . '/tests/stubs/missing.env'];
+        $options = [
+            'master' => [
+                'env' => dirname(__DIR__) . '/tests/stubs/missing.env'
+            ]
+        ];
 
         $this->getPlugin($options);
     }
@@ -116,7 +142,11 @@ class ExternalEnvironmentTest extends PHPUnit_Framework_TestCase
      */
     public function testPluginCanNotBeInstantiatedWithInvalidPathSetting()
     {
-        $options = ['env' => dirname(__DIR__) . '/tests/stubs/sample.env', 'path' => 'invalid%file(path'];
+        $options = [
+            'master' => [
+                'env' => dirname(__DIR__) . '/tests/stubs/sample.env', 'path' => 'invalid%file(path'
+            ]
+        ];
 
         $this->getPlugin($options);
     }
@@ -129,8 +159,14 @@ class ExternalEnvironmentTest extends PHPUnit_Framework_TestCase
     {
         vfsStream::setup('tmp');
 
-        $path   = '.env';
-        $plugin = $this->getPlugin(['env' => dirname(__DIR__) . '/tests/stubs/sample.env']);
+        $path    = '.env';
+        $options = [
+            'master' => [
+                'env' => dirname(__DIR__) . '/tests/stubs/sample.env'
+            ]
+        ];
+
+        $plugin = $this->getPlugin($options);
 
         $this->executePlugin($plugin, $path);
     }
@@ -144,8 +180,15 @@ class ExternalEnvironmentTest extends PHPUnit_Framework_TestCase
     {
         vfsStream::setup('tmp/conf');
 
-        $path   = 'conf/dummy.env';
-        $plugin = $this->getPlugin(['env' => dirname(__DIR__) . '/tests/stubs/sample.env', 'path' => $path]);
+        $path    = 'conf/dummy.env';
+        $options = [
+            'master' => [
+                'env'  => dirname(__DIR__) . '/tests/stubs/sample.env',
+                'path' => $path
+            ]
+        ];
+
+        $plugin = $this->getPlugin($options);
 
         $this->executePlugin($plugin, $path);
     }

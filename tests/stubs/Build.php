@@ -2,4 +2,9 @@
 
 namespace PHPCI\Model;
 
-class Build { }
+class Build {
+
+    public function getBranch()
+    {
+    }
+}
