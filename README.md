@@ -29,7 +29,7 @@ Each branch in the VCS can be configured separately to support different setting
 
 ### Plugin Options
 
-- **branch** _[array]_ The specific branch for the project
+- **branch** _[array]_ - The specific branch for the project
     - **env** _[string]_ - The path to the env file
     - **path** _[string, optional]_ - The path to the destination filename relative to the appropriate build directory _(default: '.env')_
 
